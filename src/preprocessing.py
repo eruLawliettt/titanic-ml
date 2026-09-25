@@ -90,7 +90,7 @@ def build_preprocessor():
     ]
     
     feature_pipeline = Pipeline([
-        ('age_inputer', AgeImputer()),
+        ('age_imputer', AgeImputer()),
         ('embarked_imputer', EmbarkedImputer()),
         ('has_cabin', HasCabinTransformer()),
     ])
