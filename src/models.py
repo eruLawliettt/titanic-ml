@@ -1,6 +1,7 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 def get_model(model_name: str, seed: int = 42, **model_params):
     """Create and return a model by name."""
@@ -20,6 +21,12 @@ def get_model(model_name: str, seed: int = 42, **model_params):
         return DecisionTreeClassifier(
             random_state=seed,
             **model_params,
+        )
+        
+    if model_name == 'random_forest':
+        return RandomForestClassifier(
+            random_state=seed,
+            **model_params
         )
 
     raise ValueError(f"Unknown model: {model_name}")
