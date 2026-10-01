@@ -3,6 +3,10 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 
+from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
+from xgboost import XGBClassifier
+
 def get_model(model_name: str, seed: int = 42, **model_params):
     """Create and return a model by name."""
 
@@ -25,6 +29,26 @@ def get_model(model_name: str, seed: int = 42, **model_params):
         
     if model_name == 'random_forest':
         return RandomForestClassifier(
+            random_state=seed,
+            **model_params
+        )
+
+    if model_name == 'catboost':
+        return CatBoostClassifier(
+            random_seed=seed,
+            verbose=False,
+            **model_params
+        )
+
+    if model_name == 'lightgbm':
+        return LGBMClassifier(
+            random_state=seed,
+            verbosity=-1,
+            **model_params
+        )
+        
+    if model_name == 'xgboost':
+        return XGBClassifier(
             random_state=seed,
             **model_params
         )

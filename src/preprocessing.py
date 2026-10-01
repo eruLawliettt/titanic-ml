@@ -69,25 +69,25 @@ class HasCabinTransformer(BaseEstimator, TransformerMixin):
 
         return X
     
-def build_preprocessor():
+class ColumnSelector(BaseEstimator, TransformerMixin):
+    """Select specified columns from the dataset."""
+    
+    def __init__(self, columns):
+        self.columns = columns
+        
+    def fit(self, X, y=None):
+        self.is_fitted_ = True
+        return self
+
+    def transform(self, X):
+        return X[self.columns].copy()
+
+def build_preprocessor(model_type: str = 'standard'):
     """Build the Titanic preprocessing pipeline."""
     
-    numerical_features = [
-        'Age',
-        'Fare',
-        'SibSp',
-        'Parch',
-    ]
-    
-    categorical_features = [
-        'Sex',
-        'Embarked',
-        'Pclass',
-    ]
-    
-    binary_features = [
-        'HasCabin',
-    ]
+    numerical_features = ['Age', 'Fare', 'SibSp', 'Parch',]
+    categorical_features = ['Sex', 'Embarked', 'Pclass',]
+    binary_features = ['HasCabin',]
     
     feature_pipeline = Pipeline([
         ('age_imputer', AgeImputer()),
@@ -95,30 +95,35 @@ def build_preprocessor():
         ('has_cabin', HasCabinTransformer()),
     ])
     
+    if model_type == 'catboost':
+        selected_features = (
+            numerical_features + categorical_features + binary_features
+        )
+        
+        return Pipeline([
+            ('features', feature_pipeline),
+            ('columns', ColumnSelector(selected_features))
+        ])
+    
+    if model_type == 'standard':
+        numerical_transformer = StandardScaler()
+        
+    elif model_type == 'boosting':
+        numerical_transformer = 'passthrough'
+    
+    else:
+        raise ValueError(f'Unknown model_type: {model_type}')
+        
+    
     column_transformer = ColumnTransformer(
         transformers=[
-            (
-                'num',
-                StandardScaler(),
-                numerical_features,
-            ),
-            (
-                'cat',
-                OneHotEncoder(
-                    handle_unknown='ignore',
-                    sparse_output=False,
-                ),
-                categorical_features,
-            ),
-            (
-                'binary',
-                'passthrough',
-                binary_features,
-            ),
+            ('num', numerical_transformer, numerical_features),
+            ('cat', OneHotEncoder(handle_unknown='ignore',sparse_output=False,),categorical_features),
+            ('binary', 'passthrough', binary_features),
         ],
         remainder='drop',
     )
-    
+       
     return Pipeline([
         ('features', feature_pipeline),
         ('columns', column_transformer),
