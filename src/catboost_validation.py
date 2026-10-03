@@ -7,7 +7,8 @@ from sklearn.model_selection import StratifiedKFold
 from src.preprocessing import build_preprocessor
 
 def evaluate_catboost(X, y, cat_features, model_params=None, 
-                      n_splits=5, seed=42, early_stopping_rounds=None):
+                      n_splits=5, seed=42, early_stopping_rounds=None,
+                      use_family_size = False, use_title=False):
     
     if model_params is None:
         model_params = {}
@@ -28,7 +29,9 @@ def evaluate_catboost(X, y, cat_features, model_params=None,
         y_train = y.iloc[train_idx]
         y_val = y.iloc[val_idx]
         
-        preprocessor = build_preprocessor('catboost')
+        preprocessor = build_preprocessor('catboost', 
+                                          use_family_size=use_family_size, 
+                                          use_title=use_title)
         
         X_train_processed = preprocessor.fit_transform(X_train, y_train)
         X_val_processed = preprocessor.transform(X_val)

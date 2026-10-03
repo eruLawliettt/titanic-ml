@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.compose import ColumnTransformer
@@ -82,18 +83,113 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
     def transform(self, X):
         return X[self.columns].copy()
 
-def build_preprocessor(model_type: str = 'standard'):
+class FamilySizeTransformer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        self.is_fitted_ = True
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        X["FamilySize"] = X["SibSp"] + X["Parch"] + 1
+        return X
+
+class isAlone(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        self.is_fitted_ = True
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        X["IsAlone"] = (X["FamilySize"] == 1).astype(int)
+        return X
+
+class TitleTransformer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        self.is_fitted_ = True
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        X["Title"] = X["Name"].str.extract(r",\s*([^.]*)\.")[0]
+        
+        common_titles = ['Mr', 'Miss', 'Mrs', 'Master']
+        
+        X["Title"] = X["Title"].where(
+            X['Title'].isin(common_titles),
+            'Rare'
+        )
+        
+        return X
+
+class FareLogTransformer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        self.is_fitted_ = True
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        X["Fare"] = np.log1p(X["Fare"])
+        return X
+
+class FamilyCategoryTransformer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        self.is_fitted_ = True
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        
+        X["FamilyCategory"] = pd.cut(
+            X["FamilySize"],
+            bins=[0, 1, 4, np.inf],
+            labels=["Alone", "Small", "Large"]
+        )
+        
+        return X
+
+def build_preprocessor(model_type: str = 'standard',
+                       use_family_size: bool = False,
+                       use_is_alone: bool = False,
+                       use_title: bool = False,
+                       use_fare_log: bool = False,
+                       use_family_category: bool = False) -> Pipeline:
     """Build the Titanic preprocessing pipeline."""
     
     numerical_features = ['Age', 'Fare', 'SibSp', 'Parch',]
     categorical_features = ['Sex', 'Embarked', 'Pclass',]
     binary_features = ['HasCabin',]
+    if use_family_size:
+        numerical_features.append('FamilySize')
+    if use_is_alone:
+        binary_features.append('IsAlone')
+    if use_title:
+        categorical_features.append('Title')
+    if use_family_category:
+        categorical_features.append('FamilyCategory')    
     
-    feature_pipeline = Pipeline([
+    
+    feature_steps = [
         ('age_imputer', AgeImputer()),
         ('embarked_imputer', EmbarkedImputer()),
         ('has_cabin', HasCabinTransformer()),
-    ])
+    ]
+    
+    if use_family_size:
+        feature_steps.append(('family_size', FamilySizeTransformer()))
+        
+    if use_is_alone:
+        feature_steps.append(('is_alone', isAlone()))
+
+    if use_title:
+        feature_steps.append(('title', TitleTransformer()))
+        
+    if use_fare_log:
+        feature_steps.append(('fare_log', FareLogTransformer()))
+
+    if use_family_category:
+        feature_steps.append(('family_category', FamilyCategoryTransformer()))
+
+    feature_pipeline = Pipeline(feature_steps)                                          
     
     if model_type == 'catboost':
         selected_features = (
