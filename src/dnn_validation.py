@@ -26,7 +26,9 @@ class TitanicMLP(nn.Module):
     def forward(self, x):
         return self.net(x)
     
-def train_one_fold(X_train, y_train, X_val, y_val, epochs=100, batch_size=32, lr=3e-3, seed=42):
+def train_one_fold(X_train, y_train, X_val, y_val, 
+                   epochs=100, batch_size=32, lr=3e-3, 
+                   seed=42, return_probs=False):
     torch.manual_seed(seed)
     
     X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
@@ -57,10 +59,14 @@ def train_one_fold(X_train, y_train, X_val, y_val, epochs=100, batch_size=32, lr
     model.eval()
     with torch.no_grad():
         logits = model(X_val_tensor)
+        probs = torch.sigmoid(logits)
         
-        predictions = (torch.sigmoid(logits) >= 0.5).float()
+        predictions = (probs >= 0.5).float()
         
         accuracy = (predictions == y_val_tensor).float().mean().item()
+        
+    if return_probs:
+        return probs.squeeze(1).numpy()
         
     return accuracy
     
