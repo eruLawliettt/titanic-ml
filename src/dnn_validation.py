@@ -112,4 +112,44 @@ def evaluate_dnn(X, y, n_splits=5, epochs=100, batch_size=32,
         'std': scores.std(),
     }
         
+def train_final_dnn(X_train, y_train, X_test, epochs=100, batch_size=32, lr=3e-3, seed=42):
+    torch.manual_seed(seed)
+    
+    X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
+    y_train_tensor = torch.tensor(y_train, dtype=torch.float32).reshape(-1, 1)
+    
+    X_test_tensor = torch.tensor(X_test, dtype=torch.float32)
+    
+    train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    
+    model = TitanicMLP(input_dim=X_train.shape[1])
+    
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    
+    loss_fn = nn.BCEWithLogitsLoss()
+    
+    for epoch in range(epochs):
+        model.train()
+        for x_batch, y_batch in train_dataloader:
+            optimizer.zero_grad()
+            
+            logits = model(x_batch)
+            loss = loss_fn(logits, y_batch)
+            
+            loss.backward()
+            optimizer.step()
+            
+    model.eval()
+    
+    with torch.no_grad():
+        logits = model(X_test_tensor)
+        probs = torch.sigmoid(logits)
+        
+    return probs.squeeze(1).numpy()
+        
+        
+    
+    
+    
     

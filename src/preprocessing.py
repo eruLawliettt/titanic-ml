@@ -4,6 +4,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.impute import SimpleImputer
 
 class AgeImputer(BaseEstimator, TransformerMixin):
     """Impute missing ages using median age by passenger title."""
@@ -202,10 +203,13 @@ def build_preprocessor(model_type: str = 'standard',
         ])
     
     if model_type == 'standard':
-        numerical_transformer = StandardScaler()
+        numerical_transformer = Pipeline([
+            ('imputer', SimpleImputer(strategy='median')),
+            ('scaler', StandardScaler()),
+        ])
         
     elif model_type == 'boosting':
-        numerical_transformer = 'passthrough'
+        numerical_transformer = SimpleImputer(strategy="median")
     
     else:
         raise ValueError(f'Unknown model_type: {model_type}')
