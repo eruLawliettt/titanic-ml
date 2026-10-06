@@ -159,6 +159,7 @@ def build_preprocessor(model_type: str = 'standard',
     numerical_features = ['Age', 'Fare', 'SibSp', 'Parch',]
     categorical_features = ['Sex', 'Embarked', 'Pclass',]
     binary_features = ['HasCabin',]
+    
     if use_family_size:
         numerical_features.append('FamilySize')
     if use_is_alone:
@@ -177,16 +178,12 @@ def build_preprocessor(model_type: str = 'standard',
     
     if use_family_size:
         feature_steps.append(('family_size', FamilySizeTransformer()))
-        
     if use_is_alone:
         feature_steps.append(('is_alone', isAlone()))
-
     if use_title:
         feature_steps.append(('title', TitleTransformer()))
-        
     if use_fare_log:
         feature_steps.append(('fare_log', FareLogTransformer()))
-
     if use_family_category:
         feature_steps.append(('family_category', FamilyCategoryTransformer()))
 

@@ -71,7 +71,8 @@ def train_one_fold(X_train, y_train, X_val, y_val,
     return accuracy
     
 def evaluate_dnn(X, y, n_splits=5, epochs=100, batch_size=32, 
-                 lr=3e-3, seed=42, use_family_size=False, use_fare_log=False, use_title=False):
+                 lr=3e-3, seed=42, use_family_size=False, use_fare_log=False, 
+                 use_title=False, use_is_alone=False, use_family_category=False):
     
     cv = StratifiedKFold(
         n_splits=n_splits,
@@ -92,6 +93,8 @@ def evaluate_dnn(X, y, n_splits=5, epochs=100, batch_size=32,
             use_family_size=use_family_size,
             use_fare_log=use_fare_log,
             use_title=use_title,
+            use_is_alone=use_is_alone,
+            use_family_category=use_family_category
         )
         
         X_train_processed = preprocessor.fit_transform(X_train)
