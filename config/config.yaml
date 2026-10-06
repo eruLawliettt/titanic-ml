@@ -1,0 +1,93 @@
+general:
+  experiment_name: titanic_final
+  seed: 42
+
+paths:
+  train_path: 'data/train.csv'
+  test_path: 'data/test.csv'
+  submission_path: 'submission.csv'
+  results_path: 'results.csv'
+
+cv:
+  n_splits: 5
+  scoring: accuracy
+
+preprocessing:
+  use_family_size: true
+  use_fare_log: true
+  use_title: false
+  use_is_alone: false
+  use_family_category: false
+
+models:
+  logistic_regression:
+    enabled: true
+    model_type: standard
+    params: {}
+
+  knn:
+    enabled: true
+    model_type: standard
+    params: {}
+
+  decision_tree:
+    enabled: true
+    model_type: standard
+    params:
+      criterion: gini
+      max_depth: 8
+      min_samples_leaf: 5
+      min_samples_split: 2
+
+  random_forest:
+    enabled: true
+    model_type: standard
+    params:
+      n_estimators: 200
+      max_depth: 8
+      min_samples_leaf: 2
+      max_features: sqrt
+
+  lightgbm:
+    enabled: true
+    model_type: boosting
+    params:
+      learning_rate: 0.022
+      max_depth: 7
+      num_leaves: 44
+      min_child_samples: 21
+      subsample: 1
+      colsample_bytree: 0.707
+      reg_alpha: 0.245
+      reg_lambda: 0.002
+      n_estimators: 500
+      subsample_freq: 1
+
+  catboost:
+    enabled: false
+    model_type: catboost
+    params:
+      depth: 6
+      learning_rate: 0.105
+      l2_leaf_reg: 2.184
+      random_strength: 2.57
+
+  xgboost:
+    enabled: true
+    model_type: boosting
+    params:
+      learning_rate: 0.01
+      max_depth: 8
+      min_child_weight: 2
+      gamma: 0.0454
+      subsample: 0.876
+      colsample_bytree: 0.619
+      reg_alpha: 0.324
+      reg_lambda: 0.0158
+      n_estimators: 500
+
+dnn:
+  enabled: false
+  epochs: 100
+  batch_size: 32
+  lr: 0.003
