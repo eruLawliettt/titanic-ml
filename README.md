@@ -5,6 +5,10 @@ Machine learning project for the Kaggle Titanic competition.
 The goal is to predict whether a passenger survived based on demographic,
 ticket and family-related features.
 
+## Environment
+
+- Python 3.11.16
+
 ## Project Structure
 
 ```text
