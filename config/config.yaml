@@ -1,12 +1,15 @@
 general:
   experiment_name: titanic_final
   seed: 42
+  threshold: 0.5
+  use_ensemble_for_submission: false
 
 paths:
   train_path: 'data/train.csv'
   test_path: 'data/test.csv'
   submission_path: 'submission.csv'
   results_path: 'results.csv'
+  ensemble_results_path: ensemble_results.csv
 
 cv:
   n_splits: 5
@@ -95,4 +98,16 @@ models:
       epochs: 100
       batch_size: 32
       lr: 0.003
-      threshold: 0.5
+
+ensemble:
+  enabled: false
+  models:
+    - lightgbm
+    - catboost
+    - dnn
+
+  methods:
+    averaging: true
+    hard_voting: true
+    linear_stacking: true
+    ridge_stacking: true
