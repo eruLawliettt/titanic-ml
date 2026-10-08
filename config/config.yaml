@@ -2,7 +2,7 @@ general:
   experiment_name: titanic_final
   seed: 42
   threshold: 0.5
-  use_ensemble_for_submission: false
+  use_ensemble_for_submission: true
 
 paths:
   train_path: 'data/train.csv'
@@ -67,7 +67,7 @@ models:
       subsample_freq: 1
 
   catboost:
-    enabled: false
+    enabled: true
     model_type: catboost
     params:
       depth: 6
@@ -100,7 +100,7 @@ models:
       lr: 0.003
 
 ensemble:
-  enabled: false
+  enabled: true
   models:
     - lightgbm
     - catboost

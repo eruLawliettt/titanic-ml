@@ -15,3 +15,7 @@ venv/
 Thumbs.db
 
 submission*.csv
+submission_*.csv
+results.csv
+ensemble_results.csv
+submission.csv
